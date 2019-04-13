@@ -13,6 +13,7 @@ namespace comic_reader.Pages
         public string CurrentPage;
         public string NextPage;
         public string PreviousPage;
+        public string Page;
         public void OnGet()
         {
             this.Chapter = this.HttpContext.Request.Query["chapter"];
@@ -22,6 +23,7 @@ namespace comic_reader.Pages
 
             var chapter = ComicCollection.ComicsPages[this.Chapter];
             {
+                currPage = Math.Clamp(currPage, 0, chapter.Count-1);
                 var imageUrl = $"\\static\\{chapter[currPage]}\"".Replace('\\', '/');
                 this.CurrentPage = imageUrl;
             }
@@ -40,7 +42,7 @@ namespace comic_reader.Pages
             }
             else
             {
-                this.PreviousPage = "";
+                this.PreviousPage = "/index";
             }
 
             if (nextPage != -1)
@@ -49,8 +51,9 @@ namespace comic_reader.Pages
             }
             else
             {
-                this.NextPage = "";
+                this.NextPage = "/index";
             }
+            this.Page = $"{currPage}/{chapter.Count}";
         }
     }
 }

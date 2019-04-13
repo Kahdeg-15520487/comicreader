@@ -18,10 +18,30 @@
             window.scrollBy(0, 30);
         }
     });
+    var clamp = function (a, b, c) { return Math.max(b, Math.min(c, a)); }
+    window.onload = (w,e) => {
+        var page = document.getElementById('page');
+
+        page.onclick = function () {
+            var currPage = parseInt("@Model.Page".split('/')[0]);
+            var maxPage = parseInt("@Model.Page".split('/')[1])-1;
+            var gotoPagePrompt = prompt("Which page(0->" + maxPage + ")", currPage);
+            if (gotoPagePrompt != null) {
+                var gotoPage = clamp(parseInt(gotoPagePrompt), maxPage, 0);
+
+                var url = new URL(window.location.href);
+                console.log(url.toString());
+                url.searchParams.set('curr', gotoPage);
+                console.log(url.toString());
+                window.location.href = url.toString();
+            }
+        };
+    };
 </script>
 <body style="background-color: black">
     @{
         WriteLiteral($"<a id=\"prev\" href=\"{Model.PreviousPage}\"><img src=\"/images/back.png\"/></a>");
+        WriteLiteral($"<div id=\"page\" style=\"color: white;margin: 0px auto 0px auto; border: 1px solid Gray; font-size: 40px;\" align='center' >{Model.Page}</div>");
     }
     <div id="swipezone" style="margin: 0px auto 0px auto; border: 1px solid Gray" align='center'>
         @{
