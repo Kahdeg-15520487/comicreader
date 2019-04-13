@@ -8,10 +8,14 @@
 <script>
     document.addEventListener('keydown', function (e) {
         //37 is left arrow, 39 is right arrow
-        if (e.which === 37) {
+        if (e.which === 37 || e.which === 65) {
             document.getElementById('prev').click();
-        } else if (e.which === 39) {
+        } else if (e.which === 39 || e.which === 68) {
             document.getElementById('next').click();
+        } else if (e.which === 38 || e.which === 87) {
+            window.scrollBy(0, -30);
+        } else if (e.which === 40 || e.which === 83) {
+            window.scrollBy(0, 30);
         }
     });
 </script>

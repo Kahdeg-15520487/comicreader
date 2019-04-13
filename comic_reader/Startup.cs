@@ -33,7 +33,7 @@ namespace comic_reader
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            ComicCollection.Init();
+            ComicCollection.Init(this.Configuration["dirs"].Split('|'));
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
@@ -58,6 +58,15 @@ namespace comic_reader
                 FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "comic")),
                 RequestPath = "/static/comic"
             });
+
+            foreach (string dir in this.Configuration["dirs"].Split('|'))
+            {
+                app.UseStaticFiles(new StaticFileOptions
+                {
+                    FileProvider = new PhysicalFileProvider(dir),
+                    RequestPath = "/static/comic"
+                });
+            }
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
