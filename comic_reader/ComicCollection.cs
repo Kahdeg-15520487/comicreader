@@ -27,7 +27,8 @@ namespace comic_reader
             {
                 var ext = new List<string> { ".jpg", ".png", ".gif" };
                 var images = Directory.GetFiles(comic, "*.*", SearchOption.AllDirectories)
-                     .Where(s => ext.Contains(Path.GetExtension(s)));
+                     .Where(s => ext.Contains(Path.GetExtension(s)))
+                     .Select(i => Path.Combine("static", i));
                 ComicsPages.Add(comic, images.ToList());
             }
             Console.WriteLine();
@@ -41,7 +42,7 @@ namespace comic_reader
                      {
                          var chapter = Path.GetFileName(Path.GetDirectoryName(i));
                          var imageName = Path.GetFileName(i);
-                         return Path.Combine("comic", chapter, imageName);
+                         return Path.Combine("static", "comic", chapter, imageName);
                      });
                 if (ComicsPages.ContainsKey(vcomic))
                 {

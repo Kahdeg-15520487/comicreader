@@ -23,8 +23,8 @@ namespace comic_reader.Pages
 
             var chapter = ComicCollection.ComicsPages[this.Chapter];
             {
-                currPage = Math.Clamp(currPage, 0, chapter.Count-1);
-                var imageUrl = $"\\static\\{chapter[currPage]}\"".Replace('\\', '/');
+                currPage = Math.Clamp(currPage, 0, chapter.Count - 1);
+                var imageUrl = chapter[currPage].Replace('\\', '/');
                 this.CurrentPage = imageUrl;
             }
             if (currPage == 0)
