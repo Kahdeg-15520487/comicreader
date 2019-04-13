@@ -1,0 +1,15 @@
+﻿@page
+@model comic_reader.Pages.IndexModel
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>Index</h2>
+
+@{
+    foreach (var chapter in comic_reader.ComicCollection.Comics)
+    {
+        WriteLiteral($"<a href=\"/Viewer?chapter={chapter}\">{System.IO.Path.GetFileName(chapter)}</a><br/>");
+    }
+}
+

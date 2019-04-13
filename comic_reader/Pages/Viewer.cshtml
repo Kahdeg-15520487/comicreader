@@ -1,0 +1,27 @@
+﻿@page
+@model comic_reader.Pages.ViewerModel
+@using System.IO
+@using comic_reader
+@{
+    ViewData["Title"] = "Viewer";
+}
+<script>
+    document.addEventListener('keydown', function (e) {
+        //37 is left arrow, 39 is right arrow
+        if (e.which === 37) {
+            document.getElementById('prev').click();
+        } else if (e.which === 39) {
+            document.getElementById('next').click();
+        }
+    });
+</script>
+<body style="background-color: black">
+    @{
+        WriteLiteral($"<a id=\"prev\" href=\"{Model.PreviousPage}\"><img src=\"/images/back.png\"/></a>");
+    }
+    <div id="swipezone" style="margin: 0px auto 0px auto; border: 1px solid Gray" align='center'>
+        @{
+            WriteLiteral($"<a id=\"next\"  href=\"{Model.NextPage}\"><img src=\"{Model.CurrentPage}\" alt=\"{Model.CurrentPage}\" class=\"center\" width =\"80%\" /></a><br/>");
+        }
+    </div>
+</body>
