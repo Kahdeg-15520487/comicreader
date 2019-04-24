@@ -17,11 +17,19 @@ namespace comic_reader.Pages
         public void OnGet()
         {
             this.Chapter = this.HttpContext.Request.Query["chapter"];
+            var chapter = ComicCollection.ComicsPages[this.Chapter];
             int.TryParse(this.HttpContext.Request.Query["curr"], out var currPage);
             var prevPage = currPage - 1;
             var nextPage = currPage + 1;
 
-            var chapter = ComicCollection.ComicsPages[this.Chapter];
+            if (chapter.Count == 0)
+            {
+                this.PreviousPage = "/index";
+                this.CurrentPage = "/images/empty.png";
+                this.NextPage = "/index";
+                return;
+            }
+
             {
                 currPage = Math.Clamp(currPage, 0, chapter.Count - 1);
                 var imageUrl = chapter[currPage].Replace('\\', '/');

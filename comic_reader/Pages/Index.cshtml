@@ -9,7 +9,11 @@
 @{
     foreach (var chapter in Model.Comics)
     {
-        WriteLiteral($"<a href=\"/Viewer?chapter={chapter.url}\"><img src=\"{chapter.cover}\" style=\"vertical-align:middle\" width =\"30%\" /></a>");
+        if (chapter.isLocal)
+        {
+            WriteLiteral("local ");
+        }
+        //WriteLiteral($"<a href=\"/Viewer?chapter={chapter.url}\"><img src=\"{chapter.cover}\" style=\"vertical-align:middle\" width =\"30%\" alt=\"cover\" /></a>");
         WriteLiteral($"<a href=\"/Viewer?chapter={chapter.url}\">{System.IO.Path.GetFileName(chapter.url)}</a><br/>");
     }
 }

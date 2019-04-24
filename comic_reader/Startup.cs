@@ -33,7 +33,7 @@ namespace comic_reader
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            ComicCollection.Init(this.Configuration["dirs"].Split('|'));
+            ComicCollection.Init(this.Configuration["dirs"].Split('|'), this.Configuration["ImageExt"].Split('|'));
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }

@@ -2,54 +2,107 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
+
+using comic_reader.ExtensionMethod;
+using comic_reader.Model;
 
 namespace comic_reader
 {
     public static class ComicCollection
     {
-        public static List<string> Comics { get; set; }
+        public static Dictionary<string, string> ComicsPaths { get; set; }
 
-        public static Dictionary<string, List<string>> ComicsPages { get; set; }
+        public static Dictionary<string, ComicFolder> ComicsPages { get; set; }
 
-        public static void Init(string[] dirs)
+        private static string LoadOther(string[] ext, string comic)
         {
-            var localDirs = Directory.GetDirectories("comic").ToList();
+            var chapterName = Path.GetFileName(comic);
+            var parent = comic.Substring("comic", chapterName);
+            if (parent.StartsWith("\\"))
+            {
+                parent = parent.Remove(0, 1);
+            }
+            var virtualPath = Path.Combine("comic", parent, chapterName);
+            var images = Directory.GetFiles(comic, "*.*", SearchOption.TopDirectoryOnly)
+                 .Where(s => ext.Contains(Path.GetExtension(s)))
+                 .Select(i =>
+                 {
+                     var imageName = Path.GetFileName(i);
+                     return Path.Combine("static", virtualPath, imageName);
+                 });
 
-            var otherDirs = dirs.SelectMany(d => Directory.GetDirectories(d)).ToList();
-            Comics = new List<string>();
-            Comics.AddRange(localDirs);
-            Comics.AddRange(otherDirs.Select(d => Path.Combine("comic", Path.GetFileName(d))));
-            Comics = Comics.Distinct().ToList();
+            //prioritize remote path
+            if (ComicsPages.ContainsKey(virtualPath))
+            {
+                ComicsPages.Remove(virtualPath);
+            }
 
-            ComicsPages = new Dictionary<string, List<string>>();
+            ComicFolder comicFolder = new ComicFolder(virtualPath, images, parent, false);
+
+            ComicsPages.Add(virtualPath, comicFolder);
+            return virtualPath;
+        }
+
+        private static string LoadLocal(string[] ext, string comic)
+        {
+            var images = Directory.GetFiles(comic, "*.*", SearchOption.AllDirectories)
+                 .Where(s => ext.Contains(Path.GetExtension(s)))
+                 .Select(i => Path.Combine("static", i));
+            ComicFolder comicFolder = new ComicFolder(comic, images, "");
+            ComicsPages.Add(comic, comicFolder);
+
+            return comic;
+        }
+
+        public static void Init(string[] dirs, string[] ext)
+        {
+            var localDirs = Directory.GetDirectories("comic", "*", SearchOption.AllDirectories).ToList();
+
+            var otherDirs = dirs.SelectMany(d => Directory.GetDirectories(d, "*", SearchOption.AllDirectories)).ToList();
+
+            ComicsPaths = new Dictionary<string, string>();
+            foreach (string localDir in localDirs)
+            {
+                if (ComicsPaths.ContainsKey(localDir))
+                {
+                    continue;
+                }
+
+                ComicsPaths.Add(localDir, localDir);
+            }
+            foreach (string otherDir in otherDirs)
+            {
+                if (ComicsPaths.ContainsKey(otherDir))
+                {
+                    continue;
+                }
+
+                var chapterName = Path.GetFileName(otherDir);
+                var parent = otherDir.Substring("comic", chapterName);
+                if (parent.StartsWith("\\"))
+                {
+                    parent = parent.Remove(0, 1);
+                }
+                var virtualPath = Path.Combine("comic", parent, chapterName);
+
+                ComicsPaths.Add(otherDir, virtualPath);
+            }
+
+            ComicsPages = new Dictionary<string, ComicFolder>();
             foreach (var comic in localDirs)
             {
-                var ext = new List<string> { ".jpg", ".png", ".gif" };
-                var images = Directory.GetFiles(comic, "*.*", SearchOption.AllDirectories)
-                     .Where(s => ext.Contains(Path.GetExtension(s)))
-                     .Select(i => Path.Combine("static", i));
-                ComicsPages.Add(comic, images.ToList());
+                Console.WriteLine("loading {0}", comic);
+                LoadLocal(ext, comic);
+                Console.WriteLine("loaded {0} pages", ComicsPages[comic].Count);
             }
             Console.WriteLine();
             foreach (var comic in otherDirs)
             {
-                var vcomic = Path.Combine("comic", Path.GetFileName(comic));
-                var ext = new List<string> { ".jpg", ".png", ".gif" };
-                var images = Directory.GetFiles(comic, "*.*", SearchOption.AllDirectories)
-                     .Where(s => ext.Contains(Path.GetExtension(s)))
-                     .Select(i =>
-                     {
-                         var chapter = Path.GetFileName(Path.GetDirectoryName(i));
-                         var imageName = Path.GetFileName(i);
-                         return Path.Combine("static", "comic", chapter, imageName);
-                     });
-                if (ComicsPages.ContainsKey(vcomic))
-                {
-                    ComicsPages.Remove(vcomic);
-                }
-                ComicsPages.Add(vcomic, images.ToList());
+                Console.WriteLine("loading {0}", comic);
+                LoadOther(ext, comic);
+                Console.WriteLine("loaded {0} pages", ComicsPages[ComicsPaths[comic]].Count);
             }
+            Console.WriteLine("loaded {0} comic", ComicsPaths.Count);
         }
     }
 }
